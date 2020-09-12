@@ -6,16 +6,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 Future<NewsResponse> fetchNews() async {
-  final response = await http.get('https://newsapi.org/v2/top-headlines?country=in&apiKey=');
+  final response = await http.get(
+      'https://newsapi.org/v2/top-headlines?country=in&apiKey=');
 
   if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
     return NewsResponse.fromJson(json.decode(response.body));
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load album');
+    throw Exception('Failed to load news');
   }
 }
 
@@ -29,7 +26,6 @@ class NewsHomePage extends StatefulWidget {
 }
 
 class _NewsApp extends State<NewsHomePage> {
-
   Future<NewsResponse> newsResponse;
 
   @override
@@ -60,68 +56,87 @@ class _NewsApp extends State<NewsHomePage> {
                 var newsResponse = snapshot.data;
                 var articles = newsResponse.articles;
                 return ListView(
-                  children:
-                  articles
+                  children: articles
                       .map(
                         (article) => Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: 200.0,
-                          maxHeight: 450,
-                        ),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          shadowColor: Color(0xfffe4066),
-                          elevation: 2.0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: ListView(
-                              children: [
-                                ListTile(
-                                  contentPadding: EdgeInsets.symmetric(horizontal : 8.0),
-                                  title: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical : 8.0),
-                                    child: Text(
-                                      article.title,
-                                      style: GoogleFonts.merriweather(
-                                        color: Color(0xffe91e63),
-                                        textStyle: TextStyle(
-                                          fontSize: 17.0,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff424242),
-                                          decorationStyle: TextDecorationStyle.solid,
+                          padding: EdgeInsets.all(10.0),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: 200.0,
+                              maxHeight: 450,
+                            ),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              shadowColor: Color(0xfffe4066),
+                              elevation: 2.0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: ListView(
+                                  physics: new NeverScrollableScrollPhysics(),
+                                  children: [
+                                    ListTile(
+                                      contentPadding:
+                                          EdgeInsets.symmetric(horizontal: 8.0),
+                                      title: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        child: Text(
+                                          article.title,
+                                          style: GoogleFonts.merriweather(
+                                            color: Color(0xffe91e63),
+                                            textStyle: TextStyle(
+                                              fontSize: 17.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xff424242),
+                                              decorationStyle:
+                                                  TextDecorationStyle.solid,
+                                            ),
+                                          ),
                                         ),
                                       ),
+                                      subtitle: Text(
+                                        article.author != null
+                                            ? article.author
+                                            : "",
+                                        style: GoogleFonts.lato(
+                                            textStyle: TextStyle(
+                                                fontSize: 13.0,
+                                                fontWeight: FontWeight.bold)),
+                                      ),
                                     ),
-                                  ),
-                                  subtitle: Text(article.author!=null ? article.author : "",style : GoogleFonts.lato(textStyle: TextStyle(
-                                      fontSize: 13.0,
-                                      fontWeight: FontWeight.bold
-                                  )),),
+                                    if (article.urlToImage != null)
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                                maxHeight: 200.0,
+                                                maxWidth: double.infinity),
+                                            child: new Image.network(
+                                                article.urlToImage)),
+                                      ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Center(
+                                        child: ConstrainedBox(
+                                            constraints:
+                                                BoxConstraints(maxHeight: 250),
+                                            child: Text(
+                                              article.content != null
+                                                  ? article.content
+                                                  : "",
+                                              style: GoogleFonts.lato(),
+                                            )),
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                if(article.urlToImage != null)
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: new Image.network(article.urlToImage),
-                                  ),
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Center(
-                                    child: ConstrainedBox(constraints : BoxConstraints(
-                                        maxHeight: 250
-                                    ),child: Text(article.content!=null ? article.content : "",style : GoogleFonts.lato(),)),
-                                  ),
-                                )
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  )
+                      )
                       .toList(),
                 );
               } else if (snapshot.hasError) {
@@ -189,13 +204,13 @@ class Articles {
 
   Articles(
       {Source source,
-        String author,
-        String title,
-        String description,
-        String url,
-        String urlToImage,
-        String publishedAt,
-        String content}) {
+      String author,
+      String title,
+      String description,
+      String url,
+      String urlToImage,
+      String publishedAt,
+      String content}) {
     this._source = source;
     this._author = author;
     this._title = title;
@@ -225,7 +240,7 @@ class Articles {
 
   Articles.fromJson(Map<String, dynamic> json) {
     _source =
-    json['source'] != null ? new Source.fromJson(json['source']) : null;
+        json['source'] != null ? new Source.fromJson(json['source']) : null;
     _author = json['author'];
     _title = json['title'];
     _description = json['description'];
