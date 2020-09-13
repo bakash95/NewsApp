@@ -1,7 +1,9 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:News_App/newsapp/NewsDetails.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:News_App/newsapp/modal/NewsModal.dart';
@@ -10,7 +12,7 @@ import 'dart:convert';
 
 Future<NewsResponse> fetchNews() async {
   final response = await http.get(
-      'https://newsapi.org/v2/top-headlines?country=in&apiKey=4e2d9df2092d4088ab8e13c2470e2073');
+      'https://newsapi.org/v2/top-headlines?country=in&apiKey=');
 
   if (response.statusCode == 200) {
     return NewsResponse.fromJson(json.decode(response.body));
@@ -81,7 +83,11 @@ class _NewsApp extends State<NewsHomePage> {
                 if (snapshot.hasData) {
                   var newsResponse = snapshot.data;
                   var articles = newsResponse.articles;
-                  return ListView(
+                  return new StaggeredGridView.count(
+                    crossAxisCount: 2,
+                    staggeredTiles: articles
+                        .map<StaggeredTile>((_) => StaggeredTile.fit(1))
+                        .toList(),
                       controller: _scrollController,
                       children: articles
                           .map(
@@ -91,77 +97,79 @@ class _NewsApp extends State<NewsHomePage> {
                               },
                               child: Padding(
                                 padding: EdgeInsets.all(10.0),
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    minHeight: 150.0,
-                                    maxHeight: 450,
-                                  ),
-                                  child: Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15.0),
+                                child: Center(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minWidth: 150,
+                                      maxWidth: 700
                                     ),
-                                    shadowColor: Color(0xfffe4066),
-                                    elevation: 2.0,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: ListView(
-                                        physics: new NeverScrollableScrollPhysics(),
-                                        children: [
-                                          ListTile(
-                                            contentPadding:
-                                                EdgeInsets.symmetric(horizontal: 8.0),
-                                            title: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  vertical: 8.0),
-                                              child: Text(
-                                                article.title,
-                                                style: GoogleFonts.merriweather(
-                                                  color: Color(0xffe91e63),
-                                                  textStyle: TextStyle(
-                                                    fontSize: 17.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0xff424242),
-                                                    decorationStyle:
-                                                        TextDecorationStyle.solid,
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15.0),
+                                      ),
+                                      shadowColor: Color(0xfffe4066),
+                                      elevation: 2.0,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: ListView(
+                                          shrinkWrap: true,
+                                          physics: new NeverScrollableScrollPhysics(),
+                                          children: [
+                                            ListTile(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(horizontal: 8.0),
+                                              title: Padding(
+                                                padding: const EdgeInsets.symmetric(
+                                                    vertical: 8.0),
+                                                child: AutoSizeText(
+                                                  article.title,
+                                                  style: GoogleFonts.merriweather(
+                                                    color: Color(0xffe91e63),
+                                                    textStyle: TextStyle(
+                                                      fontSize: 17.0,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Color(0xff424242),
+                                                      decorationStyle:
+                                                          TextDecorationStyle.solid,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
+                                              subtitle: AutoSizeText(
+                                                article.author != null
+                                                    ? article.author
+                                                    : "",
+                                                style: GoogleFonts.lato(
+                                                    textStyle: TextStyle(
+                                                        fontSize: 13.0,
+                                                        fontWeight: FontWeight.bold)),
+                                              ),
                                             ),
-                                            subtitle: Text(
-                                              article.author != null
-                                                  ? article.author
-                                                  : "",
-                                              style: GoogleFonts.lato(
-                                                  textStyle: TextStyle(
-                                                      fontSize: 13.0,
-                                                      fontWeight: FontWeight.bold)),
-                                            ),
-                                          ),
-                                          if (article.urlToImage != null)
+                                            if (article.urlToImage != null)
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: ConstrainedBox(
+                                                    constraints: BoxConstraints(
+                                                        minWidth: 250.0),
+                                                    child: new Image.network(
+                                                        article.urlToImage)),
+                                              ),
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: ConstrainedBox(
-                                                  constraints: BoxConstraints(
-                                                      maxHeight: 200.0,
-                                                      maxWidth: double.infinity),
-                                                  child: new Image.network(
-                                                      article.urlToImage)),
-                                            ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                            child: Center(
-                                              child: ConstrainedBox(
-                                                  constraints:
-                                                      BoxConstraints(maxHeight: 250),
-                                                  child: Text(
-                                                    article.description != null
-                                                        ? article.description
-                                                        : "",
-                                                    style: GoogleFonts.lato(),
-                                                  )),
-                                            ),
-                                          )
-                                        ],
+                                              padding: const EdgeInsets.all(10.0),
+                                              child: Center(
+                                                child: ConstrainedBox(
+                                                    constraints:
+                                                        BoxConstraints(),
+                                                    child: AutoSizeText(
+                                                      article.description != null
+                                                          ? article.description
+                                                          : "",
+                                                      style: GoogleFonts.lato(),
+                                                    )),
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -172,7 +180,7 @@ class _NewsApp extends State<NewsHomePage> {
                           .toList(),
                     );
                 } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
+                  return AutoSizeText("${snapshot.error}");
                 }
 
                 return CircularProgressIndicator();
