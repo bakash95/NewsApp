@@ -1,3 +1,4 @@
+import 'package:News_App/newsapp/components/AppBar.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -60,20 +61,7 @@ class _NewsApp extends State<NewsHomePage> {
         NewsDetails.routeNewsDetails: (context) => NewsDetails(),
       },
       home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xfffe4066),
-          elevation : 0,
-          title: Center(
-              child: Text(
-            'News App',
-            style: GoogleFonts.roboto(
-              textStyle: TextStyle(
-                fontWeight: FontWeight.bold
-              ),
-              color: Colors.white,
-            ),
-          )),
-        ),
+        appBar: buildAppBar(),
         body: RefreshIndicator(
           onRefresh: refreshNews,
           child: Center(
@@ -83,8 +71,9 @@ class _NewsApp extends State<NewsHomePage> {
                 if (snapshot.hasData) {
                   var newsResponse = snapshot.data;
                   var articles = newsResponse.articles;
+                  var crossAxisCount = MediaQuery.of(context).size.width/350;
                   return new StaggeredGridView.count(
-                    crossAxisCount: 2,
+                    crossAxisCount: crossAxisCount.floor(),
                     staggeredTiles: articles
                         .map<StaggeredTile>((_) => StaggeredTile.fit(1))
                         .toList(),
